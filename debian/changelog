@@ -1,3 +1,9 @@
+offlineimap (7.0.6+dfsg1-0.2) xenial; urgency=medium
+
+  * require python-six
+
+ -- Andreas Roth <aroth@arsoft-online.com>  Fri, 09 Sep 2016 11:10:28 +0200
+
 offlineimap (7.0.6+dfsg1-0.1) xenial; urgency=medium
 
   * new upstream release

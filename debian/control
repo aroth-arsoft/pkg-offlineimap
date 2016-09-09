@@ -10,6 +10,7 @@ Build-Depends:
  python-setuptools,
  faketime,
  python-imaplib2 (>= 2.50),
+ python-six,
  asciidoc,
  xsltproc,
  docbook-xml,
