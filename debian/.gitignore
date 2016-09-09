@@ -1,0 +1,6 @@
+/debhelper-build-stamp
+*.log
+*.debhelper
+/offlineimap/
+*.substvars
+/files
