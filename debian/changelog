@@ -1,7 +1,6 @@
 offlineimap (7.0.12+dfsg1-1.1~aroth1) yakkety; urgency=medium
 
   * backport latest version
-  * allow to use python-imaplib2 version 2.53 or later
 
  -- Andreas Roth <aroth@arsoft-online.com>  Fri, 06 Jan 2017 12:47:11 +0100
 
