@@ -18,10 +18,9 @@
 import random
 import binascii
 import re
-import os
 import time
-import six
 from sys import exc_info
+import six
 
 from .Base import BaseFolder
 from offlineimap import imaputil, imaplibutil, emailutil, OfflineImapError
@@ -48,6 +47,7 @@ class IMAPFolder(BaseFolder):
         name = imaputil.dequote(name)
         self.sep = imapserver.delim
         super(IMAPFolder, self).__init__(name, repository)
+        self.idle_mode = False
         self.expunge = repository.getexpunge()
         self.root = None # imapserver.root
         self.imapserver = imapserver
@@ -61,6 +61,8 @@ class IMAPFolder(BaseFolder):
         # self.copy_ignoreUIDs is used by BaseFolder.
         self.copy_ignoreUIDs = repository.get_copy_ignore_UIDs(
             self.getvisiblename())
+        if self.repository.getidlefolders():
+            self.idle_mode = True
 
 
     def __selectro(self, imapobj, force=False):
@@ -79,9 +81,13 @@ class IMAPFolder(BaseFolder):
 
     # Interface from BaseFolder
     def suggeststhreads(self):
+        singlethreadperfolder_default = False
+        if self.idle_mode is True:
+            singlethreadperfolder_default = True
+
         onethread = self.config.getdefaultboolean(
             "Repository %s"% self.repository.getname(),
-            "singlethreadperfolder", False)
+            "singlethreadperfolder", singlethreadperfolder_default)
         if onethread is True:
             return False
         return not globals.options.singlethreading
@@ -730,12 +736,15 @@ class IMAPFolder(BaseFolder):
                         severity = OfflineImapError.ERROR.MESSAGE
                         raise OfflineImapError(message,
                             OfflineImapError.ERROR.MESSAGE)
+                    self.ui.error("%s. While fetching msg %r in folder %r."
+                        " Query: %s Retrying (%d/%d)"% (
+                            e, uids, self.name, query,
+                            retry_num - fails_left, retry_num
+                            )
+                        )
                     # Release dropped connection, and get a new one.
                     self.imapserver.releaseconnection(imapobj, True)
                     imapobj = self.imapserver.acquireconnection()
-                    self.ui.error("%s. While fetching msg %r in folder %r."
-                        " Retrying (%d/%d)"%
-                        (e, uids, self.name, retry_num - fails_left, retry_num))
         finally:
              # The imapobj here might be different than the one created before
              # the ``try`` clause. So please avoid transforming this to a nice

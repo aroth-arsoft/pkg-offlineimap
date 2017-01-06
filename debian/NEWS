@@ -1,3 +1,23 @@
+offlineimap (7.0.6+dfsg1-1) unstable; urgency=medium
+
+  With OfflineIMAP version v7.0.0, the sqlite database becomes the default.
+  This change means that downgrading from v7.* to any previous release might
+  be prone to errors. While the migration from the (legacy) plain text
+  database to sqlite is seemingly handled, this is not the case the other way
+  around. The plain text database may be deprecated and removed in the future.
+
+  As part of work to support Python3, passwords are now expected in Unicode
+  almost everywhere. However, some configuration options are not UTF-8
+  friendly, mostly because of library limitations (e.g., remotepass).
+  Users with Unicode characters in the passwords are recommended to use a
+  file or remotepasseval.
+
+  Finally, If you have scripts using the PID file, be aware this file is no
+  longer used because running multiple instances of the program is supported
+  for years.
+
+ -- Ilias Tsitsimpis <i.tsitsimpis@gmail.com>  Mon, 19 Sep 2016 15:33:05 +0300
+
 offlineimap (6.7.0+dfsg1-1) unstable; urgency=low
 
   OfflineIMAP version 6.3.5 introduced a regression by changing the FMD5

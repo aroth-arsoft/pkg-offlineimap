@@ -16,6 +16,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 
+import codecs
 import re   # For folderfilter.
 import json
 from threading import Lock
@@ -51,7 +52,7 @@ def prune(accounts):
     if _mbnames.is_enabled() is True:
         _mbnames.prune(accounts)
     else:
-        _mbnames.pruneAll(accounts)
+        _mbnames.pruneAll()
 
 
 def write():
@@ -81,8 +82,9 @@ class _IntermediateMbnames(object):
     """mbnames data for one account."""
 
     def __init__(self, accountname, folder_root, mbnamesdir, folderfilter,
-            dry_run):
+            dry_run, ui):
 
+        self.ui = ui
         self._foldernames = []
         self._accountname = accountname
         self._folder_root = folder_root
@@ -105,12 +107,15 @@ class _IntermediateMbnames(object):
             if self._folderfilter(self._accountname, foldername):
                 itemlist.append({
                     'accountname': self._accountname,
-                    'foldername': foldername,
+                    'foldername': foldername.decode('utf-8'),
                     'localfolders': self._folder_root,
                 })
 
-        if not self._dryrun:
-            with open(self._path, "wt") as intermediateFD:
+        if self._dryrun:
+            self.ui.info("mbnames would write %s"% self._path)
+        else:
+            with codecs.open(
+                self._path, "wt", encoding='UTF-8') as intermediateFD:
                 json.dump(itemlist, intermediateFD)
 
 
@@ -122,7 +127,7 @@ class _Mbnames(object):
         self._dryrun = dry_run
 
         self._enabled = None
-        # Keys: accountname, values: _IntermediateMbnames instance
+        # Keys: accountname, values: _IntermediateMbnames instance.
         self._intermediates = {}
         self._incremental = None
         self._mbnamesdir = None
@@ -173,7 +178,7 @@ class _Mbnames(object):
 
     def _removeIntermediateFile(self, path):
         if self._dryrun:
-            self.ui.info("would remove %s"% path)
+            self.ui.info("mbnames would remove %s"% path)
         else:
             unlink(path)
             self.ui.info("removed %s"% path)
@@ -188,6 +193,7 @@ class _Mbnames(object):
                 self._mbnamesdir,
                 self._folderfilter,
                 self._dryrun,
+                self.ui,
             )
 
         self._intermediates[accountname].add(foldername)
@@ -214,7 +220,7 @@ class _Mbnames(object):
         if removals is False:
             self.ui.info("no cache file to remove")
 
-    def pruneAll(self, accounts):
+    def pruneAll(self):
         for intermediateFile in self._iterIntermediateFiles():
             self._removeIntermediateFile(intermediateFile)
 
@@ -223,7 +229,8 @@ class _Mbnames(object):
 
         for intermediateFile in self._iterIntermediateFiles():
             try:
-                with open(intermediateFile, 'rt') as intermediateFD:
+                with codecs.open(
+                    intermediateFile, 'rt', encoding="UTF-8") as intermediateFD:
                     for item in json.load(intermediateFD):
                         itemlist.append(item)
             except (OSError, IOError) as e:
@@ -240,9 +247,12 @@ class _Mbnames(object):
         itemlist.sort(key=self._func_sortkey)
         itemlist = [self._peritem % d for d in itemlist]
 
-        if not self._dryrun:
+        if self._dryrun:
+            self.ui.info("mbnames would write %s"% self._path)
+        else:
             try:
-                with open(self._path, 'wt') as mbnamesFile:
+                with codecs.open(
+                    self._path, 'wt', encoding='UTF-8') as mbnamesFile:
                     mbnamesFile.write(self._header)
                     mbnamesFile.write(self._sep.join(itemlist))
                     mbnamesFile.write(self._footer)

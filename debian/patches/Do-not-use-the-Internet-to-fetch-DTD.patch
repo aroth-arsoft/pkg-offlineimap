@@ -3,7 +3,7 @@ Date: Sun, 10 Jan 2016 21:11:10 +0200
 Subject: Do not use the Internet to fetch DTD
 
 Use '--nonet' flag in order to prevent xsltproc from using the Internet
-to to fetch DTDs, entities or documents.
+to fetch DTDs, entities or documents.
 
 Forwarded: no (Debian specific)
 ---
@@ -11,19 +11,19 @@ Forwarded: no (Debian specific)
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/docs/Makefile b/docs/Makefile
-index aadfd66..954a135 100644
+index 0753cfe..185c46c 100644
 --- a/docs/Makefile
 +++ b/docs/Makefile
 @@ -19,10 +19,10 @@ $(HTML_TARGETS): %.html : %.rst
  man: offlineimap.1 offlineimapui.7
  
- offlineimap.1: offlineimap.txt
--	a2x -v -f manpage $?
-+	a2x --xsltproc-opts=-nonet -v -f manpage $?
+ offlineimap.1: offlineimap.txt offlineimap.known_issues.txt
+-	a2x -v -d manpage -f manpage $<
++	a2x --xsltproc-opts=-nonet -v -d manpage -f manpage $<
  
  offlineimapui.7: offlineimapui.txt
--	a2x -v -f manpage $?
-+	a2x --xsltproc-opts=-nonet -v -f manpage $?
+-	a2x -v -d manpage -f manpage $<
++	a2x --xsltproc-opts=-nonet -v -d manpage -f manpage $<
  
  api:
  	$(SPHINXBUILD) -b html -d html/doctrees doc-src html

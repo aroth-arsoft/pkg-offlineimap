@@ -34,13 +34,15 @@ except NameError:
 from offlineimap import OfflineImapError, emailutil
 from .Base import BaseFolder
 
+
 # Find the UID in a message filename
 re_uidmatch = re.compile(',U=(\d+)')
 # Find a numeric timestamp in a string (filename prefix)
-re_timestampmatch = re.compile('(\d+)');
+re_timestampmatch = re.compile('(\d+)')
 
 timehash = {}
 timelock = Lock()
+
 
 def _gettimeseq(date=None):
     global timehash, timelock
@@ -56,11 +58,11 @@ def _gettimeseq(date=None):
     finally:
         timelock.release()
 
+
 class MaildirFolder(BaseFolder):
     def __init__(self, root, name, sep, repository):
         self.sep = sep # needs to be set before super().__init__
         super(MaildirFolder, self).__init__(name, repository)
-        self.dofsync = self.config.getdefaultboolean("general", "fsync", True)
         self.root = root
         # check if we should use a different infosep to support Win file systems
         self.wincompatible = self.config.getdefaultboolean(
@@ -72,7 +74,7 @@ class MaildirFolder(BaseFolder):
         # Everything up to the first comma or colon (or ! if Windows):
         self.re_prefixmatch = re.compile('([^'+ self.infosep + ',]*)')
         # folder's md, so we can match with recorded file md5 for validity.
-        self._foldermd5 = md5(self.getvisiblename().encode('utf-8')).hexdigest()
+        self._foldermd5 = md5(self.getvisiblename()).hexdigest()
         # Cache the full folder path, as we use getfullname() very often.
         self._fullname = os.path.join(self.getroot(), self.getname())
         # Modification time from 'Date' header.
@@ -330,7 +332,7 @@ class MaildirFolder(BaseFolder):
         fd.write(content)
         # Make sure the data hits the disk.
         fd.flush()
-        if self.dofsync:
+        if self.dofsync():
             os.fsync(fd)
         fd.close()
 
@@ -344,6 +346,7 @@ class MaildirFolder(BaseFolder):
         See folder/Base for detail. Note that savemessage() does not
         check against dryrun settings, so you need to ensure that
         savemessage is never called in a dryrun mode."""
+
         # This function only ever saves to tmp/,
         # but it calls savemessageflags() to actually save to cur/ or new/.
         self.ui.savemessage('maildir', uid, flags, self)
@@ -363,12 +366,13 @@ class MaildirFolder(BaseFolder):
         # Use the mail timestamp given by either Date or Delivery-date mail
         # headers.
         message_timestamp = None
-        if self._filename_use_mail_timestamp:
+        if self._filename_use_mail_timestamp is not False:
             try:
                 message_timestamp = emailutil.get_message_date(content, 'Date')
                 if message_timestamp is None:
                     # Give a try with Delivery-date
-                    date = emailutil.get_message_date(content, 'Delivery-date')
+                    message_timestamp = emailutil.get_message_date(
+                            content, 'Delivery-date')
             except Exception as e:
                 # This should never happen.
                 from email.Parser import Parser
@@ -378,8 +382,8 @@ class MaildirFolder(BaseFolder):
                 ui.warn("UID %d has invalid date %s: %s\n"
                     "Not using message timestamp as file prefix"%
                     (uid, datestr, e))
-                # No need to check if date is None here since it would
-                # be overridden by _gettimeseq.
+                # No need to check if message_timestamp is None here since it
+                # would be overridden by _gettimeseq.
         messagename = self.new_message_filename(uid, flags, date=message_timestamp)
         tmpname = self.save_to_tmp_file(messagename, content)
 
@@ -472,6 +476,8 @@ class MaildirFolder(BaseFolder):
         oldfilename = self.messagelist[uid]['filename']
         dir_prefix, filename = os.path.split(oldfilename)
         flags = self.getmessageflags(uid)
+        # TODO: we aren't keeping the prefix timestamp so we don't honor the
+        # filename_use_mail_timestamp configuration option.
         newfilename = os.path.join(dir_prefix,
           self.new_message_filename(new_uid, flags))
         os.rename(os.path.join(self.getfullname(), oldfilename),

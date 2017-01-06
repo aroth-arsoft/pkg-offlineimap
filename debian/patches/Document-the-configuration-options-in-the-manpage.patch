@@ -1,0 +1,30 @@
+From: Ilias Tsitsimpis <i.tsitsimpis@gmail.com>
+Date: Thu, 8 Sep 2016 15:03:43 +0300
+Subject: Document the configuration options in the manpage
+
+Document the available configuration option, by pointing to the
+/usr/share/doc/offlineimap/examples/offlineimap.conf.gz file.
+
+Forwarded: no (Debian specific)
+---
+ docs/offlineimap.txt | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/docs/offlineimap.txt b/docs/offlineimap.txt
+index fc4a966..964d499 100644
+--- a/docs/offlineimap.txt
++++ b/docs/offlineimap.txt
+@@ -195,6 +195,13 @@ It is possible to manually remove intermediate files in '<metadata>/mbnames/'.
+ Notice this option honors --dry-run.
+ 
+ 
++Configuration
++-------------
++
++For full details of the available configuration options, please refer to
++`/usr/share/doc/offlineimap/examples/offlineimap.conf.gz`.
++
++
+ Synchronization Performance
+ ---------------------------
+ 

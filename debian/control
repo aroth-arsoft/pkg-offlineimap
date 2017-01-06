@@ -9,7 +9,7 @@ Build-Depends:
  dh-python,
  python-setuptools,
  faketime,
- python-imaplib2 (>= 2.50),
+ python-imaplib2 (>= 2.55),
  python-six,
  asciidoc,
  xsltproc,
@@ -25,7 +25,8 @@ Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/offlineimap.git
 Package: offlineimap
 Architecture: all
 Depends:
- python-imaplib2 (>= 2.50),
+ python-imaplib2 (>= 2.55),
+ python-six,
  ${misc:Depends},
  ${python:Depends}
 Recommends: python-socks

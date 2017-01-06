@@ -3,13 +3,14 @@ Upstream-Name: OfflineIMAP
 Source: http://offlineimap.org
 Files-Excluded:
  docs/rfcs
- offlineimap/imaplib2.py
+ offlineimap/bundled_imaplib2.py
 
 Files: *
-Copyright: 2002-2016, John Goerzen & contributors
+Copyright: 2016 Nicolas Sebrecht & contributors
+           2002-2016, John Goerzen & contributors
            2008, Riccardo Murri <riccardo.murri@gmail.com>
-           2009-2011, Stewart Smith and contributors
-           2013-2014, Eygene A. Ryabinkin and contributors
+           2009-2016, Stewart Smith and contributors
+           2013-2016, Eygene A. Ryabinkin and contributors
            2010-2015, Sebastian Spaeth & contributors
 License: GPL-2+ with OpenSSL exception
 
